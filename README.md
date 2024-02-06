@@ -1,0 +1,1 @@
+Welcome! This repository contains 7000 images of 150 unique Gen-1 pokemon. I then process these images and apply a convolutional neural network (CNN) in order to identify unseen test images of these same pokemon. In time I will develop my own CNN from the ground up using the core maths e.g convolution kernels, activation functions, loss functions etc. 
