@@ -59,7 +59,7 @@ dataset_path = 'PokemonData' # Folder of all folders of images
 image_data = []
 labels = []
 
-resize_dim = (128,128) # Here is the image size we will apply to all images - need to be uniform
+resize_dim = (256,256) # Here is the image size we will apply to all images - need to be uniform
 
 Count = 0
 Pokemon = 0
@@ -87,10 +87,10 @@ labels = np.array(labels)
 #print(image_data.shape)
 #print(len(labels)) , expect this to be equal to the total number of images
 
-print('Total Pokemon: ', Pokemon)
-print('Total Unique Labels: ', len(set(labels))) # if this differs from above line then some pokemon didnt have any images (or images didnt load for given pokemon)
-print('Total Images in Dataset: ', Count)
-print(f"Total Images Loaded: {len(image_data)}")
+print('Total Unique Pokemon in Storage: ', Pokemon)
+print('Total Unique Labels Loaded Into Dataset: ', len(set(labels))) # if this differs from above line then some pokemon didnt have any images (or images didnt load for given pokemon)
+print('Total Images in Storage: ', Count)
+print(f"Total Images Loaded Into Dataset: {len(image_data)}")
 print('Most Common Pokemon: ', Counter(labels).most_common(1)[0])
 print('Least Common Pokemon: ', Counter(labels).most_common()[-1])
 #print(f"Labels: {sorted(set(labels))}") # using set removes duplicates / only shows each label once as they appear - just a reminder of all the pokemon in the dataset
@@ -103,22 +103,42 @@ onehot_encoded_labels = to_categorical(integer_encoded) # now this converts [0, 
 X_train, X_test, y_train, y_test = train_test_split(image_data, onehot_encoded_labels, test_size=0.2, random_state=68)
 
 # Define the model - at the moment I am just using generic layers
-model = Sequential([
-    Conv2D(32, (3, 3), activation='relu', input_shape=(128,128, 3)),
-    MaxPooling2D((2, 2)),
-    Conv2D(64, (3, 3), activation='relu'),
-    MaxPooling2D((2, 2)),
-    Conv2D(128, (3, 3), activation='relu'),
-    MaxPooling2D((2, 2)),
-    Flatten(),
-    Dense(128, activation='relu'),
-    Dropout(0.5),
-    Dense(len(set(labels)), activation='softmax')
-])
+act = 0
+if act == 1:
+    model = Sequential([
+        Conv2D(32, (3, 3), activation='relu', input_shape=(64,64, 3)),
+        MaxPooling2D((2, 2)),
+        Conv2D(64, (3, 3), activation='relu'),
+        MaxPooling2D((2, 2)),
+        Conv2D(128, (3, 3), activation='relu'),
+        MaxPooling2D((2, 2)),
+        Flatten(),
+        Dense(128, activation='relu'),
+        Dropout(0.5),
+        Dense(len(set(labels)), activation='softmax')
+    ])
+
+from tensorflow import keras
+
+model = Sequential(name='RGBimg_Classify_Net')
+model.add(keras.layers.Conv2D(128,3,input_shape=(256,256, 3),activation='relu'))
+model.add(keras.layers.MaxPool2D())
+#model.add(keras.layers.Conv2D(128,3,activation='relu'))
+#model.add(keras.layers.MaxPool2D())
+model.add(keras.layers.Conv2D(128,3,strides=(2,2),activation='relu'))
+model.add(keras.layers.MaxPool2D())
+model.add(keras.layers.BatchNormalization())
+model.add(keras.layers.Conv2D(64,3,strides=(2,2),activation='relu'))
+model.add(keras.layers.MaxPool2D())
+model.add(keras.layers.Flatten())
+model.add(keras.layers.Dropout(0.2))
+model.add(keras.layers.Dense(1024,activation='relu'))
+model.add(keras.layers.Dense(512,activation='relu'))
+model.add(keras.layers.Dense(len(set(labels)),activation='softmax'))
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy']) # mocel.compile 'seals' the model - 'adam' is a built in optimiser with learning rate defined at 0.001
 
-history = model.fit(X_train, y_train, epochs=20, validation_split=0.1, batch_size=32) # this gives us a log of how the model parameters, loss, accuracy etc. are changing with each iteration (well epoch really)
+history = model.fit(X_train, y_train, epochs=20, validation_split=0.1, batch_size=8) # this gives us a log of how the model parameters, loss, accuracy etc. are changing with each iteration (well epoch really)
 
 # note that just having called model.fit() causes parameters to be iteratively updated in this scope and the final model is stored now - dont need a separate line to say 'now lets start fitting'
 
