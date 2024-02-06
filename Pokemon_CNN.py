@@ -170,7 +170,7 @@ plt.show()
 
 # Modify/Optimise Epochs, Batch_size, data_split, optimizer, loss, model layers, image resizing, padding, stride, Image.Resampling.BILINEAR
 
-# Currently at 20 epochs we have train_acc = 63%, test_acc = 47%,
-# So clearly we are mid accuracy and also overfitting to the training data
+# Currently at 20 epochs we have train_acc = 95%, test_acc = 38%,
+# So clearly we are overfitting to the training data
 
 # I could convert SVGs to PNG for 13 more samples
