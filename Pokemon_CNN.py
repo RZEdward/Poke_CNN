@@ -59,7 +59,7 @@ dataset_path = 'PokemonData' # Folder of all folders of images
 image_data = []
 labels = []
 
-resize_dim = (256,256) # Here is the image size we will apply to all images - need to be uniform
+resize_dim = (64,64) # Here is the image size we will apply to all images - need to be uniform
 
 Count = 0
 Pokemon = 0
@@ -121,7 +121,7 @@ if act == 1:
 from tensorflow import keras
 
 model = Sequential(name='RGBimg_Classify_Net')
-model.add(keras.layers.Conv2D(128,3,input_shape=(256,256, 3),activation='relu'))
+model.add(keras.layers.Conv2D(128,3,input_shape=(64, 64, 3),activation='relu'))
 model.add(keras.layers.MaxPool2D())
 #model.add(keras.layers.Conv2D(128,3,activation='relu'))
 #model.add(keras.layers.MaxPool2D())
@@ -159,9 +159,52 @@ predicted_label_index = np.argmax(predictions) # returns pokemon associated with
 predicted_label = label_encoder.inverse_transform([predicted_label_index])[0] # converting label index back to label name eg 0 -> 'Abra'
 true_label = label_encoder.inverse_transform([true_label_idx])[0]
 
+def set_background_color(fig, color):
+    fig.patch.set_facecolor(color)
+    ax = plt.gca()
+    ax.set_facecolor(color)
+    ax.spines['top'].set_color(color)
+    ax.spines['bottom'].set_color(color)
+    ax.spines['left'].set_color(color)
+    ax.spines['right'].set_color(color)
+    ax.tick_params(axis='x', colors=color)
+    ax.tick_params(axis='y', colors=color)
+    plt.grid(True, color='grey')
+
 plt.imshow(selected_image) # naturally takes 0 to 1 floats as input to show image so we dont have to rescale RGB values
 plt.title(f"True Label: {true_label} | Predicted Label: {predicted_label}")
 plt.axis('off')
+set_background_color(plt.gcf(), 'forestgreen')
+plt.show()
+
+for i in range(len(X_test)):
+    selected_image = X_test[i]
+    true_label_idx = np.argmax(y_test[i])
+    predictions = model.predict(np.expand_dims(selected_image, axis=0))
+    predicted_label_index = np.argmax(predictions)
+    if predicted_label_index == true_label_idx:
+        break
+
+# Decode labels
+predicted_label = label_encoder.inverse_transform([predicted_label_index])[0]
+true_label = label_encoder.inverse_transform([true_label_idx])[0]
+
+# Display the correctly predicted image
+plt.imshow(selected_image)
+plt.title(f"True Label: {true_label} | Predicted Label: {predicted_label}")
+plt.axis('off')
+set_background_color(plt.gcf(), 'forestgreen')  # Set the background color to semi-deep forest green
+plt.show()
+
+plt.style.use('fivethirtyeight')
+fig, ax = plt.subplots(figsize=(12, 8))
+ax.plot(history.history['accuracy'], color='skyblue')
+ax.plot(history.history['val_accuracy'], color='salmon')
+ax.set_title('Model accuracy')
+ax.set_ylabel('Accuracy')
+ax.set_xlabel('Epoch')
+ax.legend(['Train', 'Validation'], loc='upper left')
+set_background_color(fig, 'forestgreen')  # Set the background color to semi-deep forest green
 plt.show()
 
 # --------------------------------------------------
@@ -170,7 +213,9 @@ plt.show()
 
 # Modify/Optimise Epochs, Batch_size, data_split, optimizer, loss, model layers, image resizing, padding, stride, Image.Resampling.BILINEAR
 
-# Currently at 20 epochs we have train_acc = 95%, test_acc = 38%,
+# can introduce some augmentation (rotation, artefacts etc) to increase generalization
+
+# Currently at 20 epochs we have train_acc = 95%, test_acc = 38%, peak validation/ongoing test_acc = 42%
 # So clearly we are overfitting to the training data
 
 # I could convert SVGs to PNG for 13 more samples
