@@ -1,3 +1,7 @@
+
+Could also just watch somebody else go through the process of TensorFlow CNN implementation
+
+
 A high training accuracy alongside a much lower test accuracy typically indicates that the model is overfitting. Overfitting happens when a model learns the training data too well, including noise and details that do not generalize to new data. Here are several strategies you can use to combat overfitting:
 
 Data Augmentation: This increases the diversity of your training data by applying random transformations like rotation, zoom, flip, etc. It can make your model more robust and less likely to memorize the training data.
